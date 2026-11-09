@@ -1,0 +1,58 @@
+name: Publicar no Pages
+
+on:
+  push:
+    branches: [main]
+  # 00:05 em Rio Preto: tira do ar quem venceu ontem.
+  schedule:
+    - cron: "5 3 * * *"
+  # Disparado pelo banco quando o admin salva uma empresa.
+  repository_dispatch:
+    types: [empresas-mudaram]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Vários saves seguidos: só o último build importa.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - id: pages
+        uses: actions/configure-pages@v5
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_BASE_PATH: ${{ vars.DOMINIO_PROPRIO == 'sim' && '' || steps.pages.outputs.base_path }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL || steps.pages.outputs.origin }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_WHATSAPP_COMERCIAL: ${{ vars.WHATSAPP_COMERCIAL }}
+      # Garantia: se aparecer source map no build, não publica.
+      - run: "! find out -name '*.map' | grep -q ."
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

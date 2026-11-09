@@ -1,0 +1,17 @@
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+.vercel
+
+# Nada de chave no repositório: elas ficam nos Secrets do GitHub.
+.env
+.env.*
+*.pem
+*.key
+supabase/.temp/
+supabase/.branches/
+
+# Documentação fica fora do repositório.
+*.md
