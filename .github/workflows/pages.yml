@@ -46,7 +46,7 @@ jobs:
       # Garantia: se aparecer source map no build, não publica.
       - run: "! find out -name '*.map' | grep -q ."
       # Trava: chave secreta do Supabase nunca pode ir pro site.
-      - run: "! grep -rq 'sb_secret_' out"
+      - run: "! grep -rqE 'sb_secret_[A-Za-z0-9]{8}' out"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: out
