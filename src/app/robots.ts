@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { BASE_PATH } from "@/lib/caminho";
-import { SITE } from "@/lib/site";
+import { urlAbsoluta } from "@/lib/site";
 
 export const dynamic = "force-static";
 
@@ -9,6 +9,6 @@ export const dynamic = "force-static";
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: { userAgent: "*", allow: "/", disallow: `${BASE_PATH}/admin/` },
-    sitemap: `${SITE.url}${BASE_PATH}/sitemap.xml`,
+    sitemap: urlAbsoluta("/sitemap.xml"),
   };
 }

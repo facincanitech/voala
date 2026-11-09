@@ -12,7 +12,8 @@ import {
   thumbYouTube,
 } from "@/lib/contato";
 import { buscarEmpresaPorSlug, listarEmpresasPublicas } from "@/lib/empresas";
-import { SITE } from "@/lib/site";
+import { OG_PADRAO, SITE, openGraphBase, urlAbsoluta } from "@/lib/site";
+import { MiniMapa } from "@/components/MiniMapa";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -32,13 +33,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const titulo = `${e.nome}: visita aérea por drone`;
   const descricao =
     e.descricao || `${rotuloCategoria(e.categoria)} em ${SITE.cidade}. Veja o lugar de cima antes de ir.`;
-  const imagem = e.youtube_id ? [{ url: thumbYouTube(e.youtube_id, "hq"), width: 480, height: 360 }] : undefined;
+  // Capa do vídeo; sem vídeo, a imagem padrão do site.
+  const imagem = e.youtube_id ? { url: thumbYouTube(e.youtube_id, "hq"), width: 480, height: 360 } : OG_PADRAO;
+  const url = urlAbsoluta(`/empresa/${e.slug}/`);
   return {
     title: titulo,
     description: descricao,
-    alternates: { canonical: `/empresa/${e.slug}/` },
-    openGraph: { title: titulo, description: descricao, url: `/empresa/${e.slug}/`, images: imagem, type: "website" },
-    twitter: { card: "summary_large_image", title: titulo, description: descricao, images: imagem?.map((i) => i.url) },
+    alternates: { canonical: url },
+    openGraph: { ...openGraphBase(), title: titulo, description: descricao, url, images: [imagem] },
+    twitter: { card: "summary_large_image", title: titulo, description: descricao, images: [imagem.url] },
   };
 }
 
@@ -130,6 +133,8 @@ export default async function PaginaEmpresa({ params }: Props) {
               Como chegar
             </a>
           </div>
+
+          <MiniMapa empresa={e} />
         </aside>
       </div>
     </main>

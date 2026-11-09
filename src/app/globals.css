@@ -375,6 +375,18 @@ h3 {
   box-shadow: var(--sombra);
   background: var(--ceu-100);
 }
+.mapinha-caixa {
+  margin-top: 16px;
+}
+.mapinha {
+  height: 200px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--borda);
+  background: var(--ceu-100);
+  z-index: 0; /* não passa por cima do topo fixo */
+  position: relative;
+}
 .mapa-carregando {
   display: grid;
   place-items: center;

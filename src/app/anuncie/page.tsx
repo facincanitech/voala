@@ -1,20 +1,26 @@
 import type { Metadata } from "next";
 import { linkWhatsApp } from "@/lib/contato";
-import { SITE } from "@/lib/site";
+import { OG_PADRAO, SITE, openGraphBase, urlAbsoluta } from "@/lib/site";
+
+const TITULO = "Anuncie sua empresa";
+const DESCRICAO = `Mostre sua empresa de cima: gravamos um vídeo com drone e colocamos você no mapa de ${SITE.regiao}.`;
 
 export const metadata: Metadata = {
-  title: "Anuncie sua empresa",
-  description: `Mostre sua empresa de cima: gravamos um vídeo com drone e colocamos você no mapa de ${SITE.cidade}.`,
+  title: TITULO,
+  description: DESCRICAO,
+  alternates: { canonical: urlAbsoluta("/anuncie/") },
+  openGraph: { ...openGraphBase(), title: TITULO, description: DESCRICAO, url: urlAbsoluta("/anuncie/"), images: [OG_PADRAO] },
 };
 
 export default function Anuncie() {
-  const wpp = linkWhatsApp(SITE.whatsappComercial, `Olá! Quero colocar minha empresa no ${SITE.nome}.`);
+  // Sem número configurado, o botão some (nada de link quebrado).
+  const wpp = SITE.whatsapp ? linkWhatsApp(SITE.whatsapp, `Olá! Quero colocar minha empresa no ${SITE.nome}.`) : "";
   return (
     <main className="container texto">
       <h1>Sua empresa vista de cima</h1>
       <p>
         Antes de visitar um lugar novo, as pessoas querem ver como ele é. No {SITE.nome}, quem procura um restaurante,
-        loja ou academia em {SITE.cidade} assiste a um vídeo curto gravado por drone e já chega sabendo onde estacionar,
+        loja ou academia em {SITE.regiao} assiste a um vídeo curto gravado por drone e já chega sabendo onde estacionar,
         o tamanho do espaço e o clima do lugar.
       </p>
 
@@ -44,10 +50,15 @@ export default function Anuncie() {
 
       <div className="cta-final">
         <h2>Vamos colocar você no mapa?</h2>
-        <p>Mensalidade sem fidelidade. Fale com a gente e receba os valores.</p>
-        <a className="botao botao-wpp" href={wpp} target="_blank" rel="noopener">
-          Falar no WhatsApp
-        </a>
+        <p>
+          Mensalidade sem fidelidade.{" "}
+          {wpp ? "Fale com a gente e receba os valores." : "Em breve você poderá falar com a gente por aqui."}
+        </p>
+        {wpp && (
+          <a className="botao botao-wpp" href={wpp} target="_blank" rel="noopener">
+            Falar no WhatsApp
+          </a>
+        )}
       </div>
     </main>
   );

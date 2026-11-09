@@ -2,16 +2,20 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
-import { SITE } from "@/lib/site";
+import { linkWhatsApp } from "@/lib/contato";
+import { OG_PADRAO, SITE, openGraphBase } from "@/lib/site";
 import "./globals.css";
 
 const fonte = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--fonte", display: "swap" });
 
+// URLs absolutas saem de urlAbsoluta() (já com o /voala). O metadataBase com
+// barra no fim é rede de segurança para alguma URL relativa que escape.
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE.url),
-  title: { default: `${SITE.nome} · Visitas por drone em ${SITE.cidade}`, template: `%s · ${SITE.nome}` },
-  description: `Veja restaurantes, lojas e academias de ${SITE.cidade} de cima, em vídeos curtos gravados por drone.`,
-  openGraph: { siteName: SITE.nome, locale: "pt_BR", type: "website" },
+  metadataBase: new URL(`${SITE.url}/`),
+  title: { default: `${SITE.nome} · ${SITE.slogan}`, template: `%s · ${SITE.nome}` },
+  description: SITE.descricao,
+  openGraph: { ...openGraphBase(), images: [OG_PADRAO] },
+  twitter: { card: "summary_large_image", images: [OG_PADRAO.url] },
 };
 
 export const viewport: Viewport = { themeColor: "#dcefff", width: "device-width", initialScale: 1 };
@@ -39,7 +43,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <span>
               © {new Date().getFullYear()} {SITE.nome} · {SITE.cidade} - {SITE.uf}
             </span>
-            <Link href="/anuncie">Quero minha empresa aqui</Link>
+            <span style={{ display: "flex", gap: 16 }}>
+              <Link href="/anuncie">Quero minha empresa aqui</Link>
+              {SITE.whatsapp && (
+                <a href={linkWhatsApp(SITE.whatsapp, `Olá! Vim pelo site do ${SITE.nome}.`)} target="_blank" rel="noopener">
+                  WhatsApp
+                </a>
+              )}
+            </span>
           </div>
         </footer>
       </body>

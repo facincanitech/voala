@@ -37,10 +37,11 @@ jobs:
       - run: npm run build
         env:
           NEXT_PUBLIC_BASE_PATH: ${{ vars.DOMINIO_PROPRIO == 'sim' && '' || steps.pages.outputs.base_path }}
-          NEXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL || steps.pages.outputs.origin }}
+          # URL pública completa, com o /voala. Com domínio próprio: variável SITE_URL.
+          NEXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL || steps.pages.outputs.base_url }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-          NEXT_PUBLIC_WHATSAPP_COMERCIAL: ${{ vars.WHATSAPP_COMERCIAL }}
+          NEXT_PUBLIC_WHATSAPP: ${{ vars.WHATSAPP }}
       # Garantia: se aparecer source map no build, não publica.
       - run: "! find out -name '*.map' | grep -q ."
       - uses: actions/upload-pages-artifact@v3

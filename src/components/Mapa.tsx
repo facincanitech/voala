@@ -10,6 +10,15 @@ import { thumbYouTube } from "@/lib/contato";
 import { SITE } from "@/lib/site";
 import type { EmpresaPublica } from "@/lib/tipos";
 
+type Props = {
+  empresas: EmpresaPublica[];
+  // Mapinha da página da empresa: centrado nela, zoom travado, sem cluster.
+  fixo?: boolean;
+  className?: string;
+};
+
+const ZOOM_FIXO = 16;
+
 // Popup é HTML cru do Leaflet: escapa tudo que vem do banco.
 function esc(s: string) {
   return s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
@@ -22,7 +31,28 @@ function htmlPopup(e: EmpresaPublica) {
     <a class="botao botao-primario botao-pequeno" href="${caminho(`/empresa/${e.slug}/`)}">Ver visita aérea</a></div>`;
 }
 
-export default function Mapa({ empresas }: { empresas: EmpresaPublica[] }) {
+function pino(e: EmpresaPublica) {
+  return L.marker([e.lat, e.lng], {
+    title: e.nome,
+    keyboard: false,
+    icon: L.divIcon({
+      html: `<div class="pino"><span>${emojiCategoria(e.categoria)}</span></div>`,
+      className: "",
+      iconSize: [34, 34],
+      iconAnchor: [17, 34],
+      popupAnchor: [0, -30],
+    }),
+  });
+}
+
+function camadaRuas() {
+  return L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  });
+}
+
+export default function Mapa({ empresas, fixo = false, className = "mapa" }: Props) {
   const divRef = useRef<HTMLDivElement>(null);
   const mapaRef = useRef<L.Map | null>(null);
   const grupoRef = useRef<L.MarkerClusterGroup | null>(null);
@@ -30,12 +60,36 @@ export default function Mapa({ empresas }: { empresas: EmpresaPublica[] }) {
   // Cria o mapa uma vez.
   useEffect(() => {
     if (!divRef.current) return;
-    const mapa = L.map(divRef.current, { zoomControl: false }).setView([SITE.centro.lat, SITE.centro.lng], 13);
+
+    if (fixo) {
+      const e = empresas[0];
+      if (!e) return;
+      const mapa = L.map(divRef.current, {
+        zoomControl: false,
+        dragging: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        touchZoom: false,
+        boxZoom: false,
+        keyboard: false,
+      }).setView([e.lat, e.lng], ZOOM_FIXO);
+      camadaRuas().addTo(mapa);
+      pino(e).addTo(mapa);
+      return () => {
+        mapa.remove();
+      };
+    }
+
+    // Mapa principal: preso em Rio Preto e região, para ninguém se perder no oceano.
+    const limites = L.latLngBounds(SITE.regiaoLimites);
+    const mapa = L.map(divRef.current, {
+      zoomControl: false,
+      maxBounds: limites.pad(0.1),
+      maxBoundsViscosity: 0.8,
+      minZoom: 10,
+    }).setView([SITE.centro.lat, SITE.centro.lng], 13);
     L.control.zoom({ position: "bottomright" }).addTo(mapa);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(mapa);
+    camadaRuas().addTo(mapa);
     mapaRef.current = mapa;
 
     let cancelado = false;
@@ -57,37 +111,27 @@ export default function Mapa({ empresas }: { empresas: EmpresaPublica[] }) {
       mapaRef.current = null;
       grupoRef.current = null;
     };
-  }, []);
+  }, [fixo]);
 
-  // Redesenha os pinos quando o filtro muda.
+  // Redesenha os pinos quando o filtro muda (só no mapa principal).
   useEffect(() => {
     const mapa = mapaRef.current;
-    if (!mapa) return;
+    if (fixo || !mapa) return;
     const desenhar = () => {
       const grupo = grupoRef.current;
       if (!grupo) return;
       grupo.clearLayers();
-      const pinos = empresas.map((e) =>
-        L.marker([e.lat, e.lng], {
-          title: e.nome,
-          icon: L.divIcon({
-            html: `<div class="pino"><span>${emojiCategoria(e.categoria)}</span></div>`,
-            className: "",
-            iconSize: [34, 34],
-            iconAnchor: [17, 34],
-            popupAnchor: [0, -30],
-          }),
-        }).bindPopup(htmlPopup(e)),
-      );
+      const pinos = empresas.map((e) => pino(e).bindPopup(htmlPopup(e)));
       grupo.addLayers(pinos);
       if (pinos.length) mapa.fitBounds(grupo.getBounds(), { padding: [40, 40], maxZoom: 16 });
+      else mapa.setView([SITE.centro.lat, SITE.centro.lng], 12);
     };
     if (grupoRef.current) desenhar();
     else mapa.once("grupo-pronto", desenhar);
     return () => {
       mapa.off("grupo-pronto", desenhar);
     };
-  }, [empresas]);
+  }, [empresas, fixo]);
 
-  return <div ref={divRef} className="mapa" />;
+  return <div ref={divRef} className={className} />;
 }
