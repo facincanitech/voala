@@ -26,12 +26,8 @@ export default async function Home() {
       <section className="hero">
         <div className="container">
           <h1>
-            {SITE.cidade} <em>vista de cima</em>
+            Rio Preto e região <em>vista de cima</em>
           </h1>
-          <p>
-            Rio Preto e região: escolha um lugar e assista a uma visita de 1 minuto gravada por drone, antes de sair de
-            casa.
-          </p>
         </div>
       </section>
       <div className="container explorar">

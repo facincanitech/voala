@@ -7,7 +7,7 @@ const urlBase = (process.env.NEXT_PUBLIC_SITE_URL || `http://localhost:3000${BAS
 // Tudo que identifica o site num lugar só: trocar o nome é mexer aqui.
 export const SITE = {
   nome: "VoaLá",
-  slogan: "São José do Rio Preto vista de cima",
+  slogan: "Rio Preto e região vista de cima",
   cidade: "São José do Rio Preto",
   regiao: "São José do Rio Preto e região",
   uf: "SP",
