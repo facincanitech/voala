@@ -681,14 +681,6 @@ h3 {
   justify-content: space-between;
 }
 
-.link-painel {
-  color: var(--texto-suave);
-  text-decoration: none;
-}
-.link-painel:hover {
-  text-decoration: underline;
-}
-
 /* ---------- Admin ---------- */
 .admin {
   padding: 20px 0 64px;
