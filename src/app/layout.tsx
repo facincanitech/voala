@@ -50,6 +50,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   WhatsApp
                 </a>
               )}
+              {/* Acesso ao painel: discreto, mas à mão. nofollow p/ o Google não seguir. */}
+              <Link href="/admin/" rel="nofollow" className="link-painel">
+                Entrar
+              </Link>
             </span>
           </div>
         </footer>
