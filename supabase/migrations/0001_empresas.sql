@@ -1,5 +1,5 @@
 -- VoaLá: tabela de empresas + quem é admin + regras de acesso (RLS).
--- Rodar no SQL Editor do Supabase (ou `supabase db push`).
+-- Aplicada no projeto Supabase do VoaLá. (select ...) = avaliado uma vez por consulta.
 
 create table public.empresas (
   id             uuid primary key default gen_random_uuid(),
@@ -44,15 +44,15 @@ alter table public.admins enable row level security;
 -- Público só enxerga empresa ativa com plano em dia (vence_em é o último dia válido).
 create policy "publico le empresas em dia" on public.empresas
   for select to anon, authenticated
-  using (ativo and plano_vence_em >= public.hoje_br());
+  using (ativo and plano_vence_em >= (select public.hoje_br()));
 
 create policy "admin le tudo" on public.empresas
-  for select to authenticated using (public.is_admin());
+  for select to authenticated using ((select public.is_admin()));
 create policy "admin cria" on public.empresas
-  for insert to authenticated with check (public.is_admin());
+  for insert to authenticated with check ((select public.is_admin()));
 create policy "admin edita" on public.empresas
-  for update to authenticated using (public.is_admin()) with check (public.is_admin());
+  for update to authenticated using ((select public.is_admin())) with check ((select public.is_admin()));
 -- Sem policy de delete de propósito: o painel desativa, não apaga.
 
 create policy "admin se ve" on public.admins
-  for select to authenticated using (user_id = auth.uid());
+  for select to authenticated using (user_id = (select auth.uid()));

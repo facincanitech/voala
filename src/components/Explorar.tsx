@@ -108,6 +108,10 @@ export function Explorar({ empresas }: { empresas: EmpresaPublica[] }) {
 
       {visao === "mapa" ? (
         <Mapa empresas={filtradas} />
+      ) : empresas.length === 0 ? (
+        <p className="vazio">
+          As primeiras visitas aéreas estão sendo gravadas. Volte em breve!
+        </p>
       ) : filtradas.length === 0 ? (
         <p className="vazio">Nada encontrado. Tente outro nome ou categoria.</p>
       ) : (

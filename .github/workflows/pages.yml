@@ -39,11 +39,14 @@ jobs:
           NEXT_PUBLIC_BASE_PATH: ${{ vars.DOMINIO_PROPRIO == 'sim' && '' || steps.pages.outputs.base_path }}
           # URL pública completa, com o /voala. Com domínio próprio: variável SITE_URL.
           NEXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL || steps.pages.outputs.base_url }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          # Públicos por natureza, mas ficam fora do repo (Settings > Secrets and variables > Actions).
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
           NEXT_PUBLIC_WHATSAPP: ${{ vars.WHATSAPP }}
       # Garantia: se aparecer source map no build, não publica.
       - run: "! find out -name '*.map' | grep -q ."
+      # Trava: chave secreta do Supabase nunca pode ir pro site.
+      - run: "! grep -rq 'sb_secret_' out"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: out
