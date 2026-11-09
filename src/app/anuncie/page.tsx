@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BotaoWhats } from "@/components/BotaoWhats";
 import { linkWhatsApp } from "@/lib/contato";
 import { OG_PADRAO, SITE, openGraphBase, urlAbsoluta } from "@/lib/site";
 
@@ -60,6 +61,7 @@ export default function Anuncie() {
           </a>
         )}
       </div>
+      <BotaoWhats mensagem={`Olá! Quero colocar minha empresa no ${SITE.nome}.`} />
     </main>
   );
 }

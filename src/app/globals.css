@@ -648,6 +648,25 @@ h3 {
   margin: 0 0 16px;
 }
 
+/* ---------- WhatsApp flutuante ---------- */
+.whats-flutuante {
+  position: fixed;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 1100;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: var(--verde-wpp);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 25%);
+  transition: transform 0.15s;
+}
+.whats-flutuante:hover {
+  transform: scale(1.07);
+}
+
 /* ---------- Rodapé ---------- */
 .rodape {
   border-top: 1px solid var(--borda);

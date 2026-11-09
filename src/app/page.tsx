@@ -1,3 +1,4 @@
+import { BotaoWhats } from "@/components/BotaoWhats";
 import { Explorar } from "@/components/Explorar";
 import { listarEmpresasPublicas } from "@/lib/empresas";
 import type { Metadata } from "next";
@@ -41,6 +42,7 @@ export default async function Home() {
         )}
         <Explorar empresas={empresas} />
       </div>
+      <BotaoWhats mensagem={`Olá! Vim pelo site do ${SITE.nome}.`} />
     </main>
   );
 }
